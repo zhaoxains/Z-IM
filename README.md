@@ -15,6 +15,7 @@
 
 - `docs/im-plan.md`：个人端 IM 规划文档
 - `docs/im-tasks.md`：开发任务清单
+- `docs/license-editions.md`：免费版 / 商业版私有化授权方案
 - `apps/mobile`：Flutter 客户端原型
 
 ## 当前已完成
