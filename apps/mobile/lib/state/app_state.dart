@@ -6,7 +6,10 @@ import '../data/mock_repository.dart';
 import '../models/chat_message.dart';
 import '../models/conversation.dart';
 import '../models/friend_request.dart';
+import '../models/red_packet.dart';
 import '../models/user_profile.dart';
+import '../models/wallet_account.dart';
+import '../models/wallet_transaction.dart';
 
 class AppState extends ChangeNotifier {
   AppState() : _repo = MockRepository();
@@ -16,6 +19,7 @@ class AppState extends ChangeNotifier {
 
   bool get isLoggedIn => _isLoggedIn;
   UserProfile get me => _repo.me;
+  WalletAccount get walletAccount => _repo.walletAccount;
 
   List<UserProfile> get contacts => List.unmodifiable(_repo.contacts);
 
@@ -33,6 +37,18 @@ class AppState extends ChangeNotifier {
       }
       return b.lastMessageAt.compareTo(a.lastMessageAt);
     });
+    return items;
+  }
+
+  List<WalletTransaction> get walletTransactions {
+    final items = [..._repo.walletTransactions];
+    items.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return items;
+  }
+
+  List<RedPacketRecord> get redPackets {
+    final items = [..._repo.redPackets];
+    items.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return items;
   }
 
@@ -181,5 +197,77 @@ class AppState extends ChangeNotifier {
       _repo.contacts.insert(0, requester);
     }
     notifyListeners();
+  }
+
+  void mockRecharge(double amount) {
+    if (amount <= 0) return;
+    final now = DateTime.now();
+    final nextBalance = _repo.walletAccount.balance + amount;
+    _repo.walletAccount = _repo.walletAccount.copyWith(balance: nextBalance);
+    _repo.walletTransactions.insert(
+      0,
+      WalletTransaction(
+        id: 'wt_${Random().nextInt(99999)}',
+        type: WalletTransactionType.recharge,
+        direction: WalletTransactionDirection.income,
+        title: '钱包充值',
+        amount: amount,
+        balanceAfter: nextBalance,
+        createdAt: now,
+        description: '发现页快捷充值（Mock）',
+      ),
+    );
+    notifyListeners();
+  }
+
+  bool sendRedPacket({
+    required RedPacketType type,
+    required String targetName,
+    required double amount,
+    required String greeting,
+  }) {
+    if (amount <= 0 || targetName.trim().isEmpty) return false;
+    if (_repo.walletAccount.balance < amount) return false;
+
+    final now = DateTime.now();
+    final nextBalance = _repo.walletAccount.balance - amount;
+    final nextFrozen = _repo.walletAccount.frozenBalance + amount;
+
+    _repo.walletAccount = _repo.walletAccount.copyWith(
+      balance: nextBalance,
+      frozenBalance: nextFrozen,
+    );
+
+    _repo.redPackets.insert(
+      0,
+      RedPacketRecord(
+        id: 'rp_${Random().nextInt(99999)}',
+        type: type,
+        targetName: targetName.trim(),
+        amount: amount,
+        greeting: greeting.trim().isEmpty ? '恭喜发财，大吉大利' : greeting.trim(),
+        status: RedPacketStatus.pending,
+        createdAt: now,
+        claimedCount: 0,
+        totalCount: type == RedPacketType.single ? 1 : 5,
+      ),
+    );
+
+    _repo.walletTransactions.insert(
+      0,
+      WalletTransaction(
+        id: 'wt_${Random().nextInt(99999)}',
+        type: WalletTransactionType.freeze,
+        direction: WalletTransactionDirection.freeze,
+        title: '红包冻结',
+        amount: amount,
+        balanceAfter: nextBalance,
+        createdAt: now,
+        description: targetName.trim(),
+      ),
+    );
+
+    notifyListeners();
+    return true;
   }
 }

@@ -27,8 +27,7 @@ class NewFriendsPage extends StatelessWidget {
                     return InsetTile(
                       leading: AvatarView(label: user.nickname, colorValue: user.avatarColorValue),
                       title: user.nickname,
-                      subtitle: '${request.message}
-${_timeLabel(request)}',
+                      subtitle: '${request.message}\n${_timeLabel(request)}',
                       trailing: _buildAction(request),
                     );
                   }).toList(),

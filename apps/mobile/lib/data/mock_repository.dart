@@ -1,7 +1,10 @@
 import '../models/chat_message.dart';
 import '../models/conversation.dart';
 import '../models/friend_request.dart';
+import '../models/red_packet.dart';
 import '../models/user_profile.dart';
+import '../models/wallet_account.dart';
+import '../models/wallet_transaction.dart';
 
 class MockRepository {
   MockRepository();
@@ -95,6 +98,70 @@ class MockRepository {
       participantIds: const ['u_me', 'u_brian'],
       lastMessagePreview: '收到，明早同步。',
       lastMessageAt: DateTime.now().subtract(const Duration(hours: 3)),
+    ),
+  ];
+
+  WalletAccount walletAccount = const WalletAccount(
+    userId: 'u_me',
+    balance: 1288.88,
+    frozenBalance: 88.00,
+  );
+
+  final List<WalletTransaction> walletTransactions = [
+    WalletTransaction(
+      id: 'wt_1',
+      type: WalletTransactionType.recharge,
+      direction: WalletTransactionDirection.income,
+      title: '钱包充值',
+      amount: 500.00,
+      balanceAfter: 1288.88,
+      createdAt: DateTime.now().subtract(const Duration(hours: 3)),
+      description: '支付宝 App 支付（Mock）',
+    ),
+    WalletTransaction(
+      id: 'wt_2',
+      type: WalletTransactionType.freeze,
+      direction: WalletTransactionDirection.freeze,
+      title: '红包冻结',
+      amount: 88.00,
+      balanceAfter: 788.88,
+      createdAt: DateTime.now().subtract(const Duration(hours: 8)),
+      description: '产品设计群拼手气红包',
+    ),
+    WalletTransaction(
+      id: 'wt_3',
+      type: WalletTransactionType.redPacketReceive,
+      direction: WalletTransactionDirection.income,
+      title: '收到红包',
+      amount: 28.80,
+      balanceAfter: 876.88,
+      createdAt: DateTime.now().subtract(const Duration(days: 1)),
+      description: '安安的单聊红包',
+    ),
+  ];
+
+  final List<RedPacketRecord> redPackets = [
+    RedPacketRecord(
+      id: 'rp_1',
+      type: RedPacketType.groupRandom,
+      targetName: '产品设计群',
+      amount: 88.00,
+      greeting: '新版本上线顺利',
+      status: RedPacketStatus.pending,
+      createdAt: DateTime.now().subtract(const Duration(hours: 8)),
+      claimedCount: 2,
+      totalCount: 5,
+    ),
+    RedPacketRecord(
+      id: 'rp_2',
+      type: RedPacketType.single,
+      targetName: '安安',
+      amount: 20.00,
+      greeting: '辛苦啦',
+      status: RedPacketStatus.claimed,
+      createdAt: DateTime.now().subtract(const Duration(days: 1)),
+      claimedCount: 1,
+      totalCount: 1,
     ),
   ];
 
