@@ -161,7 +161,7 @@
 - 服务端语言：优先建议 `Go`
 - HTTP 框架：`Gin` 或 `Fiber`
 - 实时通信：`WebSocket`
-- 数据库：`PostgreSQL`
+- 数据库：`MySQL`
 - 缓存：`Redis`
 - 文件存储：`MinIO`
 - 搜索：二期可接 `Elasticsearch`
@@ -219,7 +219,7 @@
    - 群组管理
 
 7. Infra
-   - PostgreSQL
+   - MySQL
    - Redis
    - MinIO
 

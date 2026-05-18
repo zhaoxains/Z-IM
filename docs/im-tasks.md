@@ -49,7 +49,7 @@
 - [ ] 建立会话模块
 - [ ] 建立消息模块
 - [ ] 接入 WebSocket 实时消息
-- [ ] 接入 PostgreSQL
+- [ ] 接入 MySQL
 - [ ] 接入 Redis
 - [ ] 接入 MinIO
 
