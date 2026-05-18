@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../app.dart';
 import '../theme/app_theme.dart';
@@ -23,26 +23,26 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
+    return CupertinoPageScaffold(
+      backgroundColor: AppTheme.pageBackground,
+      child: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 40),
               Container(
-                width: 72,
-                height: 72,
+                width: 76,
+                height: 76,
                 decoration: BoxDecoration(
                   color: AppTheme.brandGreen,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(22),
                 ),
                 alignment: Alignment.center,
                 child: const Text(
                   'IM',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: CupertinoColors.white,
                     fontSize: 28,
                     fontWeight: FontWeight.w700,
                   ),
@@ -51,48 +51,79 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 24),
               const Text(
                 '欢迎使用 Z-IM',
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700),
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.w700, color: AppTheme.textPrimary),
               ),
               const SizedBox(height: 12),
               const Text(
-                '参考微信的个人端即时通讯原型
-当前版本使用 Mock 数据演示完整聊天流程。',
+                'Flutter 版个人社交 IM 原型，当前已切换为更接近 iOS 的界面风格，并使用 Mock 数据演示聊天流程。',
                 style: TextStyle(fontSize: 15, color: AppTheme.textSecondary, height: 1.6),
               ),
-              const SizedBox(height: 32),
-              TextField(
-                controller: _mobileController,
-                keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(labelText: '手机号'),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _codeController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: '验证码（演示默认 123456）'),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                '首轮仅做客户端原型，后续可接入 Go + MySQL 服务端。',
-                style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
-              ),
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () => appState.login(_mobileController.text),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppTheme.brandGreen,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+              const SizedBox(height: 28),
+              _InputCard(
+                child: CupertinoTextField(
+                  controller: _mobileController,
+                  keyboardType: TextInputType.phone,
+                  placeholder: '手机号',
+                  prefix: const Padding(
+                    padding: EdgeInsets.only(left: 12),
+                    child: Icon(CupertinoIcons.phone, color: AppTheme.textSecondary, size: 20),
                   ),
-                  child: const Text('进入原型'),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  decoration: null,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 14),
+              _InputCard(
+                child: CupertinoTextField(
+                  controller: _codeController,
+                  keyboardType: TextInputType.number,
+                  placeholder: '验证码（演示默认 123456）',
+                  prefix: const Padding(
+                    padding: EdgeInsets.only(left: 12),
+                    child: Icon(CupertinoIcons.lock, color: AppTheme.textSecondary, size: 20),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  decoration: null,
+                ),
+              ),
+              const SizedBox(height: 14),
+              const Text(
+                '后续将逐个补齐：发现页、钱包、红包、音视频、支付和授权模块。',
+                style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+              ),
+              const SizedBox(height: 220),
+              SizedBox(
+                width: double.infinity,
+                child: CupertinoButton.filled(
+                  onPressed: () => appState.login(_mobileController.text),
+                  borderRadius: BorderRadius.circular(14),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 2),
+                    child: Text('进入原型'),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _InputCard extends StatelessWidget {
+  const _InputCard({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: CupertinoColors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: child,
     );
   }
 }

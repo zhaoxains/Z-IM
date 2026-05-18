@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../app.dart';
 import '../models/chat_message.dart';
@@ -28,65 +28,80 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     final conversation = appState.conversations.firstWhere((item) => item.id == widget.conversationId);
 
-    return Scaffold(
-      appBar: AppBar(title: Text(conversation.title)),
-      body: Column(
-        children: [
-          Expanded(
-            child: AnimatedBuilder(
-              animation: appState,
-              builder: (context, _) {
-                final messages = appState.messagesFor(widget.conversationId);
-                return ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
-                  itemCount: messages.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final message = messages[index];
-                    return _MessageBubble(
-                      conversation: conversation,
-                      message: message,
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-          SafeArea(
-            top: false,
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(top: BorderSide(color: AppTheme.divider)),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      minLines: 1,
-                      maxLines: 4,
-                      decoration: const InputDecoration(
-                        hintText: '输入消息',
-                        isDense: true,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  FilledButton(
-                    onPressed: () {
-                      appState.sendTextMessage(widget.conversationId, _controller.text);
-                      _controller.clear();
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: Text(conversation.title),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            Icon(CupertinoIcons.phone, size: 20),
+            SizedBox(width: 12),
+            Icon(CupertinoIcons.videocam, size: 22),
+          ],
+        ),
+      ),
+      child: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: AnimatedBuilder(
+                animation: appState,
+                builder: (context, _) {
+                  final messages = appState.messagesFor(widget.conversationId);
+                  return ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
+                    itemCount: messages.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final message = messages[index];
+                      return _MessageBubble(conversation: conversation, message: message);
                     },
-                    style: FilledButton.styleFrom(backgroundColor: AppTheme.brandGreen),
-                    child: const Text('发送'),
-                  ),
-                ],
+                  );
+                },
               ),
             ),
-          ),
-        ],
+            SafeArea(
+              top: false,
+              child: DecoratedBox(
+                decoration: const BoxDecoration(
+                  color: CupertinoColors.white,
+                  border: Border(top: BorderSide(color: AppTheme.divider)),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: CupertinoTextField(
+                          controller: _controller,
+                          placeholder: '输入消息',
+                          minLines: 1,
+                          maxLines: 4,
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: AppTheme.pageBackground,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      CupertinoButton(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        color: AppTheme.brandGreen,
+                        borderRadius: BorderRadius.circular(14),
+                        onPressed: () {
+                          appState.sendTextMessage(widget.conversationId, _controller.text);
+                          _controller.clear();
+                        },
+                        child: const Text('发送'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -102,15 +117,17 @@ class _MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     if (message.kind == MessageKind.system) {
       return Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: DecoratedBox(
           decoration: BoxDecoration(
             color: const Color(0xFFE5E7EB),
             borderRadius: BorderRadius.circular(999),
           ),
-          child: Text(
-            message.content,
-            style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            child: Text(
+              message.content,
+              style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+            ),
           ),
         ),
       );
@@ -139,18 +156,20 @@ class _MessageBubble extends StatelessWidget {
                     style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
                   ),
                 ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              DecoratedBox(
                 decoration: BoxDecoration(
-                  color: isMine ? AppTheme.brandGreen : Colors.white,
+                  color: isMine ? AppTheme.brandGreen : CupertinoColors.white,
                   borderRadius: BorderRadius.circular(18),
                 ),
-                child: Text(
-                  message.content,
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: isMine ? Colors.white : AppTheme.textPrimary,
-                    height: 1.5,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  child: Text(
+                    message.content,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: isMine ? CupertinoColors.white : AppTheme.textPrimary,
+                      height: 1.5,
+                    ),
                   ),
                 ),
               ),

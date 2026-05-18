@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../app.dart';
-import '../models/user_profile.dart';
 import '../theme/app_theme.dart';
 import '../widgets/avatar_view.dart';
+import '../widgets/inset_section.dart';
 import 'chat_page.dart';
 
 class CreateGroupPage extends StatefulWidget {
@@ -26,78 +26,85 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   @override
   Widget build(BuildContext context) {
     final contacts = appState.contacts;
-    return Scaffold(
-      appBar: AppBar(title: const Text('创建群聊')),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: '群聊名称（可选）',
-                hintText: '不填时自动根据成员生成',
-              ),
-            ),
-          ),
-          Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-              itemCount: contacts.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 10),
-              itemBuilder: (context, index) {
-                final user = contacts[index];
-                final selected = _selectedIds.contains(user.id);
-                return Card(
-                  child: CheckboxListTile(
-                    value: selected,
-                    onChanged: (_) {
-                      setState(() {
-                        if (selected) {
-                          _selectedIds.remove(user.id);
-                        } else {
-                          _selectedIds.add(user.id);
-                        }
-                      });
-                    },
-                    secondary: AvatarView(label: user.nickname, colorValue: user.avatarColorValue),
-                    title: Text(user.nickname),
-                    subtitle: Text(user.bio),
-                    controlAffinity: ListTileControlAffinity.trailing,
-                  ),
-                );
-              },
-            ),
-          ),
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: _selectedIds.isEmpty
-                      ? null
-                      : () {
-                          final selectedUsers = contacts.where((user) => _selectedIds.contains(user.id)).toList();
-                          final conversationId = appState.createGroup(
-                            name: _nameController.text,
-                            members: selectedUsers,
-                          );
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (_) => ChatPage(conversationId: conversationId)),
-                          );
-                        },
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppTheme.brandGreen,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  child: Text('创建群聊（${_selectedIds.length}）'),
+    return CupertinoPageScaffold(
+      navigationBar: const CupertinoNavigationBar(middle: Text('创建群聊')),
+      child: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: CupertinoColors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: CupertinoTextField(
+                  controller: _nameController,
+                  placeholder: '群聊名称（可选，不填将自动生成）',
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+                  decoration: null,
                 ),
               ),
             ),
-          ),
-        ],
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.only(bottom: 12),
+                children: [
+                  InsetSection(
+                    header: '选择好友',
+                    children: contacts.map((user) {
+                      final selected = _selectedIds.contains(user.id);
+                      return InsetTile(
+                        leading: AvatarView(label: user.nickname, colorValue: user.avatarColorValue),
+                        title: user.nickname,
+                        subtitle: user.bio,
+                        trailing: Icon(
+                          selected ? CupertinoIcons.check_mark_circled_solid : CupertinoIcons.circle,
+                          color: selected ? AppTheme.brandGreen : AppTheme.textSecondary,
+                          size: 22,
+                        ),
+                        onTap: () {
+                          setState(() {
+                            if (selected) {
+                              _selectedIds.remove(user.id);
+                            } else {
+                              _selectedIds.add(user.id);
+                            }
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: CupertinoButton.filled(
+                    borderRadius: BorderRadius.circular(14),
+                    onPressed: _selectedIds.isEmpty
+                        ? null
+                        : () {
+                            final selectedUsers = contacts.where((user) => _selectedIds.contains(user.id)).toList();
+                            final conversationId = appState.createGroup(
+                              name: _nameController.text,
+                              members: selectedUsers,
+                            );
+                            Navigator.of(context).pushReplacement(
+                              CupertinoPageRoute(builder: (_) => ChatPage(conversationId: conversationId)),
+                            );
+                          },
+                    child: Text('创建群聊（${_selectedIds.length}）'),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

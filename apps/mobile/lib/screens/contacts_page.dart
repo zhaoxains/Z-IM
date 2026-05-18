@@ -1,8 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../app.dart';
 import '../models/user_profile.dart';
+import '../theme/app_theme.dart';
 import '../widgets/avatar_view.dart';
+import '../widgets/inset_section.dart';
 import 'chat_page.dart';
 import 'new_friends_page.dart';
 
@@ -11,61 +13,38 @@ class ContactsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: appState,
-      builder: (context, _) {
-        final contacts = appState.contacts;
-        return ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          children: [
-            _ActionTile(
-              icon: Icons.person_add_alt_1,
-              title: '新的朋友',
-              subtitle: '查看好友申请与处理记录',
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const NewFriendsPage()),
-                );
-              },
-            ),
-            const SizedBox(height: 12),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-              child: Text('联系人', style: TextStyle(fontWeight: FontWeight.w600)),
-            ),
-            ...contacts.map((user) => _ContactTile(user: user)),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _ActionTile extends StatelessWidget {
-  const _ActionTile({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        onTap: onTap,
-        leading: CircleAvatar(
-          backgroundColor: const Color(0xFFE8F8F0),
-          child: Icon(icon, color: Theme.of(context).colorScheme.primary),
+    return CupertinoPageScaffold(
+      navigationBar: const CupertinoNavigationBar(middle: Text('通讯录')),
+      child: SafeArea(
+        child: AnimatedBuilder(
+          animation: appState,
+          builder: (context, _) {
+            final contacts = appState.contacts;
+            return ListView(
+              padding: const EdgeInsets.fromLTRB(0, 14, 0, 24),
+              children: [
+                InsetSection(
+                  children: [
+                    InsetTile(
+                      leading: const _SquareIcon(icon: CupertinoIcons.person_add_solid),
+                      title: '新的朋友',
+                      subtitle: '查看好友申请与处理记录',
+                      onTap: () {
+                        Navigator.of(context).push(
+                          CupertinoPageRoute(builder: (_) => const NewFriendsPage()),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                InsetSection(
+                  header: '联系人',
+                  children: contacts.map((user) => _ContactTile(user: user)).toList(),
+                ),
+              ],
+            );
+          },
         ),
-        title: Text(title),
-        subtitle: Text(subtitle),
-        trailing: const Icon(Icons.chevron_right_rounded),
       ),
     );
   }
@@ -78,22 +57,43 @@ class _ContactTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 10),
-      child: ListTile(
-        onTap: () {
-          final conversationId = appState.ensureSingleConversation(user);
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => ChatPage(conversationId: conversationId)),
-          );
-        },
-        leading: AvatarView(label: user.nickname, colorValue: user.avatarColorValue),
-        title: Text(user.nickname),
-        subtitle: Text(user.bio),
-        trailing: user.isOnline
-            ? const Text('在线', style: TextStyle(color: Color(0xFF07C160), fontSize: 12))
-            : const Text('离线', style: TextStyle(color: Color(0xFF86909C), fontSize: 12)),
+    return InsetTile(
+      leading: AvatarView(label: user.nickname, colorValue: user.avatarColorValue),
+      title: user.nickname,
+      subtitle: user.bio,
+      trailing: Text(
+        user.isOnline ? '在线' : '离线',
+        style: TextStyle(
+          color: user.isOnline ? AppTheme.brandGreen : AppTheme.textSecondary,
+          fontSize: 12,
+        ),
       ),
+      onTap: () {
+        final conversationId = appState.ensureSingleConversation(user);
+        Navigator.of(context).push(
+          CupertinoPageRoute(builder: (_) => ChatPage(conversationId: conversationId)),
+        );
+      },
+    );
+  }
+}
+
+class _SquareIcon extends StatelessWidget {
+  const _SquareIcon({required this.icon});
+
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 42,
+      height: 42,
+      decoration: BoxDecoration(
+        color: const Color(0xFFE8F8F0),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      alignment: Alignment.center,
+      child: Icon(icon, color: AppTheme.brandGreen, size: 22),
     );
   }
 }

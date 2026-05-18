@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'screens/home_shell_page.dart';
 import 'screens/login_page.dart';
@@ -15,7 +15,7 @@ class ZimApp extends StatelessWidget {
     return AnimatedBuilder(
       animation: appState,
       builder: (context, _) {
-        return MaterialApp(
+        return CupertinoApp(
           title: 'Z-IM',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light(),

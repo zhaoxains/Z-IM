@@ -1,71 +1,60 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../app.dart';
 import '../models/friend_request.dart';
 import '../theme/app_theme.dart';
 import '../widgets/avatar_view.dart';
+import '../widgets/inset_section.dart';
 
 class NewFriendsPage extends StatelessWidget {
   const NewFriendsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('新的朋友')),
-      body: AnimatedBuilder(
-        animation: appState,
-        builder: (context, _) {
-          final requests = appState.friendRequests;
-          return ListView.separated(
-            padding: const EdgeInsets.all(12),
-            itemCount: requests.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
-            itemBuilder: (context, index) {
-              final request = requests[index];
-              final user = appState.userById(request.fromUserId);
-              return Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AvatarView(label: user.nickname, colorValue: user.avatarColorValue),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(user.nickname, style: const TextStyle(fontWeight: FontWeight.w600)),
-                            const SizedBox(height: 6),
-                            Text(request.message, style: const TextStyle(color: AppTheme.textSecondary)),
-                            const SizedBox(height: 6),
-                            Text(_timeLabel(request), style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      _buildAction(request),
-                    ],
-                  ),
+    return CupertinoPageScaffold(
+      navigationBar: const CupertinoNavigationBar(middle: Text('新的朋友')),
+      child: SafeArea(
+        child: AnimatedBuilder(
+          animation: appState,
+          builder: (context, _) {
+            final requests = appState.friendRequests;
+            return ListView(
+              padding: const EdgeInsets.only(top: 14, bottom: 24),
+              children: [
+                InsetSection(
+                  children: requests.map((request) {
+                    final user = appState.userById(request.fromUserId);
+                    return InsetTile(
+                      leading: AvatarView(label: user.nickname, colorValue: user.avatarColorValue),
+                      title: user.nickname,
+                      subtitle: '${request.message}
+${_timeLabel(request)}',
+                      trailing: _buildAction(request),
+                    );
+                  }).toList(),
                 ),
-              );
-            },
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
 
   Widget _buildAction(FriendRequest request) {
     if (request.status == FriendRequestStatus.accepted) {
-      return const Chip(label: Text('已添加'));
+      return const Text('已添加', style: TextStyle(color: AppTheme.brandGreen, fontSize: 13));
     }
     if (request.status == FriendRequestStatus.rejected) {
-      return const Chip(label: Text('已拒绝'));
+      return const Text('已拒绝', style: TextStyle(color: AppTheme.textSecondary, fontSize: 13));
     }
-    return FilledButton.tonal(
+    return CupertinoButton(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      color: AppTheme.brandGreen,
+      borderRadius: BorderRadius.circular(10),
+      minSize: 0,
       onPressed: () => appState.acceptFriendRequest(request.id),
-      child: const Text('通过'),
+      child: const Text('通过', style: TextStyle(color: CupertinoColors.white, fontSize: 13)),
     );
   }
 

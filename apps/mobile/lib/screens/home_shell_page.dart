@@ -1,53 +1,52 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
-import '../app.dart';
-import '../theme/app_theme.dart';
 import 'contacts_page.dart';
+import 'discover_page.dart';
 import 'messages_page.dart';
 import 'mine_page.dart';
 
-class HomeShellPage extends StatefulWidget {
+class HomeShellPage extends StatelessWidget {
   const HomeShellPage({super.key});
 
   @override
-  State<HomeShellPage> createState() => _HomeShellPageState();
-}
-
-class _HomeShellPageState extends State<HomeShellPage> {
-  int _currentIndex = 0;
-
-  @override
   Widget build(BuildContext context) {
-    final pages = [
-      const MessagesPage(),
-      const ContactsPage(),
-      const MinePage(),
-    ];
-
-    final titles = ['消息', '通讯录', '我的'];
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(titles[_currentIndex]),
-        actions: [
-          if (_currentIndex == 2)
-            IconButton(
-              onPressed: appState.logout,
-              icon: const Icon(Icons.logout_rounded),
-            ),
+    return CupertinoTabScaffold(
+      tabBar: const CupertinoTabBar(
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.chat_bubble_2),
+            activeIcon: Icon(CupertinoIcons.chat_bubble_2_fill),
+            label: '消息',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.person_2),
+            activeIcon: Icon(CupertinoIcons.person_2_fill),
+            label: '通讯录',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.compass),
+            activeIcon: Icon(CupertinoIcons.compass_fill),
+            label: '发现',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.person_crop_circle),
+            activeIcon: Icon(CupertinoIcons.person_crop_circle_fill),
+            label: '我的',
+          ),
         ],
       ),
-      body: IndexedStack(index: _currentIndex, children: pages),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        indicatorColor: AppTheme.brandGreen.withOpacity(0.14),
-        onDestinationSelected: (index) => setState(() => _currentIndex = index),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.chat_bubble_outline), label: '消息'),
-          NavigationDestination(icon: Icon(Icons.perm_contact_calendar_outlined), label: '通讯录'),
-          NavigationDestination(icon: Icon(Icons.person_outline), label: '我的'),
-        ],
-      ),
+      tabBuilder: (context, index) {
+        switch (index) {
+          case 0:
+            return CupertinoTabView(builder: (_) => const MessagesPage());
+          case 1:
+            return CupertinoTabView(builder: (_) => const ContactsPage());
+          case 2:
+            return CupertinoTabView(builder: (_) => const DiscoverPage());
+          default:
+            return CupertinoTabView(builder: (_) => const MinePage());
+        }
+      },
     );
   }
 }
